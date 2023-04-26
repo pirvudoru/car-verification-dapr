@@ -19,25 +19,6 @@ class VerifyInsurance : WorkflowActivity<VerifyInsuranceRequest, VerifyInsurance
         this.client = client;
     }
 
-    // public override async Task<Object> RunAsync(WorkflowActivityContext context, PaymentRequest req)
-    // {
-    //
-    //     // Simulate slow processing
-    //     await Task.Delay(TimeSpan.FromSeconds(5));
-    //
-    //     // Determine if there are enough Items for purchase
-    //     var (original, originalETag) =
-    //         await client.GetStateAndETagAsync<OrderPayload>(storeName, req.ItemBeingPruchased);
-    //     int newQuantity = original.Quantity - req.Amount;
-    //
-    //     // Update the statestore with the new amount of paper clips
-    //     await client.SaveStateAsync<OrderPayload>(storeName, req.ItemBeingPruchased,
-    //         new OrderPayload(Name: req.ItemBeingPruchased, TotalCost: req.Currency, Quantity: newQuantity));
-    //     this.logger.LogInformation($"There are now: {newQuantity} {original.Name} left in stock");
-    //
-    //     return null;
-    // }
-
     public override async Task<VerifyInsuranceResult> RunAsync(WorkflowActivityContext context, VerifyInsuranceRequest input)
     {
         this.logger.LogInformation(
@@ -45,8 +26,15 @@ class VerifyInsurance : WorkflowActivity<VerifyInsuranceRequest, VerifyInsurance
             input.RequestId,
             input.VIN);
 
-        await Task.Delay(TimeSpan.FromSeconds(1));
+        var result = client.CreateInvokeMethodRequest(HttpMethod.Post, "insuranceservice", "verify");
+        
+        var response = await client.InvokeMethodAsync<VerifyInsuranceResult>(result);
 
-        return new VerifyInsuranceResult(ValidUntil: DateTime.Today);
+        this.logger.LogInformation(
+            "Verify Insurance: ReqId# {requestId} for {vin}",
+            input.RequestId,
+            input.VIN);
+
+        return new VerifyInsuranceResult(ValidUntil: response.ValidUntil);
     }
 }
