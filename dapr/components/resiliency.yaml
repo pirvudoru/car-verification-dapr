@@ -1,0 +1,30 @@
+apiVersion: dapr.io/v1alpha1
+kind: Resiliency
+metadata:
+  name: resiliency
+scopes:
+  # optionally scope the policy to specific apps
+spec:
+  policies:
+    timeouts:
+      # timeout policy definitions
+
+    retries:
+      general:
+        policy: constant
+        duration: 1s
+        maxRetries: 3
+
+    circuitBreakers:
+      # circuit breaker policy definitions
+
+  targets:
+    apps:
+      # vehicleregistrationservice:
+      #   retry: general
+
+    actors:
+      # actor types and their applied policies here
+
+    components:
+      # components and their applied policies here
